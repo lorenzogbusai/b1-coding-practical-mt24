@@ -42,8 +42,9 @@ class Submarine:
         self.vel_y = 0
     
 class Trajectory:
-    def __init__(self, position: np.ndarray):
+    def __init__(self, position: np.ndarray, errors: np.ndarray = None):
         self.position = position  
+        self.errors = errors
         
     def plot(self):
         plt.plot(self.position[:, 0], self.position[:, 1])
@@ -98,15 +99,15 @@ class ClosedLoop:
         positions = np.zeros((T, 2))
         actions = np.zeros(T)
         self.plant.reset_state()
-
+        errors = np.zeros(T)
         for t in range(T):
             positions[t] = self.plant.get_position()
             observation_t = self.plant.get_depth()
             error = mission.reference[t] - observation_t
+            errors[t] = error
             actions[t] = self.controller.compute_action(error, self.plant.dt)
             self.plant.transition(actions[t], disturbances[t])
-
-        return Trajectory(positions)
+        return Trajectory(positions, errors)
         
     def simulate_with_random_disturbances(self, mission: Mission, variance: float = 0.5) -> Trajectory:
         disturbances = np.random.normal(0, variance, len(mission.reference))
