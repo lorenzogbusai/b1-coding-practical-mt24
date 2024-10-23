@@ -3,7 +3,7 @@ class Controller:
         self.kp = kp
         self.kd = kd
         self.ki = ki
-        self.previous_error = None
+        self.previous_error = 0
         self.integral = 0.0
 
     def set_gains(self, kp, kd, ki=0):
